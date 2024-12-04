@@ -1,56 +1,55 @@
 import 'package:flutter/material.dart';
-import 'package:pro_shered_preference/pro_shered_preference.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-
-class WorkPage extends StatefulWidget {
-  const WorkPage({super.key});
+class UsernamePage extends StatefulWidget {
+  const UsernamePage({super.key});
 
   @override
-  State<WorkPage> createState() => _WorkPageState();
+  State<UsernamePage> createState() => _UsernamePageState();
 }
 
-class _WorkPageState extends State<WorkPage> {
-  List<String> _workItems = [];
-  final TextEditingController _workController = TextEditingController();
+class _UsernamePageState extends State<UsernamePage> {
+  List<String> _usernames = [];
+  final TextEditingController _usernameController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    _loadWorkItems();
+    _loadUsernames();
   }
 
-  Future<void> _loadWorkItems() async {
+  Future<void> _loadUsernames() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      _workItems = prefs.getStringList('workItems') ?? [];
+      _usernames = prefs.getStringList('usernames') ?? [];
     });
   }
 
-  Future<void> _saveWorkItems() async {
+  Future<void> _saveUsernames() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setStringList('workItems', _workItems);
+    await prefs.setStringList('usernames', _usernames);
   }
 
-  void _addWork() {
-    if (_workController.text.isNotEmpty) {
+  void _addUsername() {
+    if (_usernameController.text.isNotEmpty) {
       setState(() {
-        _workItems.add(_workController.text);
+        _usernames.add(_usernameController.text);
       });
-      _workController.clear();
-      _saveWorkItems();
+      _usernameController.clear();
+      _saveUsernames();
     }
   }
 
-  void _editWork(int index) {
-    _workController.text = _workItems[index];
+  void _editUsername(int index) {
+    _usernameController.text = _usernames[index];
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Edit Work Item'),
+          title: const Text('Edit Username'),
           content: TextField(
-            controller: _workController,
-            decoration: const InputDecoration(labelText: 'Work Item'),
+            controller: _usernameController,
+            decoration: const InputDecoration(labelText: 'Username'),
           ),
           actions: [
             TextButton(
@@ -62,10 +61,10 @@ class _WorkPageState extends State<WorkPage> {
             TextButton(
               onPressed: () {
                 setState(() {
-                  _workItems[index] = _workController.text;
+                  _usernames[index] = _usernameController.text;
                 });
-                _workController.clear();
-                _saveWorkItems();
+                _usernameController.clear();
+                _saveUsernames();
                 Navigator.of(context).pop();
               },
               child: const Text('Save'),
@@ -76,49 +75,49 @@ class _WorkPageState extends State<WorkPage> {
     );
   }
 
-  void _deleteWork(int index) {
+  void _deleteUsername(int index) {
     setState(() {
-      _workItems.removeAt(index);
+      _usernames.removeAt(index);
     });
-    _saveWorkItems();
+    _saveUsernames();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Manage Work')),
+      appBar: AppBar(title: const Text('Manage Usernames')),
       body: Column(
         children: [
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: TextField(
-              controller: _workController,
+              controller: _usernameController,
               decoration: const InputDecoration(
-                labelText: 'Add a Work Item',
+                labelText: 'Add a Username',
                 border: OutlineInputBorder(),
               ),
             ),
           ),
           ElevatedButton(
-            onPressed: _addWork,
-            child: const Text('Add Work'),
+            onPressed: _addUsername,
+            child: const Text('Add Username'),
           ),
           Expanded(
             child: ListView.builder(
-              itemCount: _workItems.length,
+              itemCount: _usernames.length,
               itemBuilder: (BuildContext context, int index) {
                 return ListTile(
-                  title: Text(_workItems[index]),
+                  title: Text(_usernames[index]),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       IconButton(
                         icon: const Icon(Icons.edit),
-                        onPressed: () => _editWork(index),
+                        onPressed: () => _editUsername(index),
                       ),
                       IconButton(
                         icon: const Icon(Icons.delete),
-                        onPressed: () => _deleteWork(index),
+                        onPressed: () => _deleteUsername(index),
                       ),
                     ],
                   ),

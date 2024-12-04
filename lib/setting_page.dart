@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pro_shered_preference/pro_shered_preference.dart';
 
-
 class SettingsPage extends StatefulWidget {
   final Function(bool) onThemeChanged;
 
@@ -37,7 +36,6 @@ class _SettingsPageState extends State<SettingsPage> {
     await prefs.setBool('isDarkTheme', _isDarkTheme);
     await prefs.setBool('notificationsEnabled', _notificationsEnabled);
 
-    // Notify the parent about the theme change.
     widget.onThemeChanged(_isDarkTheme);
 
     ScaffoldMessenger.of(context).showSnackBar(
@@ -48,7 +46,10 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Settings')),
+      appBar: AppBar(
+        title: const Text('Settings'),
+        backgroundColor: Colors.indigo,
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -58,6 +59,8 @@ class _SettingsPageState extends State<SettingsPage> {
               decoration: const InputDecoration(
                 labelText: 'Username',
                 border: OutlineInputBorder(),
+                filled: true,
+                fillColor: Colors.white,
               ),
             ),
             const SizedBox(height: 20),
@@ -82,7 +85,15 @@ class _SettingsPageState extends State<SettingsPage> {
             const Spacer(),
             ElevatedButton(
               onPressed: _saveSettings,
-              child: const Text('Save Settings'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.indigo,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+              ),
+              child: const Text(
+                'Save Settings',
+                style: TextStyle(fontSize: 18),
+              ),
             ),
           ],
         ),
