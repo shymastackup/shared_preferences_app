@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pro_shered_preference/pro_shered_preference.dart';
 
+
 class SettingsPage extends StatefulWidget {
   final Function(bool) onThemeChanged;
 
@@ -11,7 +12,6 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  final TextEditingController _usernameController = TextEditingController();
   bool _isDarkTheme = false;
   bool _notificationsEnabled = false;
 
@@ -24,7 +24,6 @@ class _SettingsPageState extends State<SettingsPage> {
   Future<void> _loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      _usernameController.text = prefs.getString('username') ?? '';
       _isDarkTheme = prefs.getBool('isDarkTheme') ?? false;
       _notificationsEnabled = prefs.getBool('notificationsEnabled') ?? false;
     });
@@ -32,7 +31,6 @@ class _SettingsPageState extends State<SettingsPage> {
 
   Future<void> _saveSettings() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('username', _usernameController.text);
     await prefs.setBool('isDarkTheme', _isDarkTheme);
     await prefs.setBool('notificationsEnabled', _notificationsEnabled);
 
@@ -54,16 +52,6 @@ class _SettingsPageState extends State<SettingsPage> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            TextField(
-              controller: _usernameController,
-              decoration: const InputDecoration(
-                labelText: 'Username',
-                border: OutlineInputBorder(),
-                filled: true,
-                fillColor: Colors.white,
-              ),
-            ),
-            const SizedBox(height: 20),
             SwitchListTile(
               title: const Text('Dark Theme'),
               value: _isDarkTheme,
