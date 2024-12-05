@@ -1,48 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:pro_shered_preference/pro_shered_preference.dart';
+import 'package:provider/provider.dart';
+import 'theame_notifier.dart';
 
-
-class SettingsPage extends StatefulWidget {
-  final Function(bool) onThemeChanged;
-
-  const SettingsPage({super.key, required this.onThemeChanged});
-
-  @override
-  State<SettingsPage> createState() => _SettingsPageState();
-}
-
-class _SettingsPageState extends State<SettingsPage> {
-  bool _isDarkTheme = false;
-  bool _notificationsEnabled = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadSettings();
-  }
-
-  Future<void> _loadSettings() async {
-    final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _isDarkTheme = prefs.getBool('isDarkTheme') ?? false;
-      _notificationsEnabled = prefs.getBool('notificationsEnabled') ?? false;
-    });
-  }
-
-  Future<void> _saveSettings() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('isDarkTheme', _isDarkTheme);
-    await prefs.setBool('notificationsEnabled', _notificationsEnabled);
-
-    widget.onThemeChanged(_isDarkTheme);
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Settings saved!')),
-    );
-  }
+class SettingsPage extends StatelessWidget {
+  const SettingsPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final themeNotifier = context.watch<ThemeNotifier>();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Settings'),
@@ -54,34 +20,13 @@ class _SettingsPageState extends State<SettingsPage> {
           children: [
             SwitchListTile(
               title: const Text('Dark Theme'),
-              value: _isDarkTheme,
-              onChanged: (bool value) {
-                setState(() {
-                  _isDarkTheme = value;
-                });
-              },
+              value: themeNotifier.isDarkTheme,
+              onChanged: (value) => themeNotifier.updateTheme(value),
             ),
             SwitchListTile(
               title: const Text('Enable Notifications'),
-              value: _notificationsEnabled,
-              onChanged: (bool value) {
-                setState(() {
-                  _notificationsEnabled = value;
-                });
-              },
-            ),
-            const Spacer(),
-            ElevatedButton(
-              onPressed: _saveSettings,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.indigo,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-              ),
-              child: const Text(
-                'Save Settings',
-                style: TextStyle(fontSize: 18),
-              ),
+              value: themeNotifier.notificationsEnabled,
+              onChanged: (value) => themeNotifier.updateNotifications(value),
             ),
           ],
         ),

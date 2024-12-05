@@ -1,98 +1,27 @@
 import 'package:flutter/material.dart';
-import 'package:pro_shered_preference/pro_shered_preference.dart';
+import 'package:flutter_application_sf/user_name_notifier.dart';
+import 'package:provider/provider.dart';
 
 
-class UsernamePage extends StatefulWidget {
+class UsernamePage extends StatelessWidget {
   const UsernamePage({super.key});
 
   @override
-  State<UsernamePage> createState() => _UsernamePageState();
-}
-
-class _UsernamePageState extends State<UsernamePage> {
-  List<String> _usernames = [];
-  final TextEditingController _usernameController = TextEditingController();
-
-  @override
-  void initState() {
-    super.initState();
-    _loadUsernames();
-  }
-
-  Future<void> _loadUsernames() async {
-    final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _usernames = prefs.getStringList('usernames') ?? [];
-    });
-  }
-
-  Future<void> _saveUsernames() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setStringList('usernames', _usernames);
-  }
-
-  void _addUsername() {
-    if (_usernameController.text.isNotEmpty) {
-      setState(() {
-        _usernames.add(_usernameController.text);
-      });
-      _usernameController.clear();
-      _saveUsernames();
-    }
-  }
-
-  void _editUsername(int index) {
-    _usernameController.text = _usernames[index];
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Edit Username'),
-          content: TextField(
-            controller: _usernameController,
-            decoration: const InputDecoration(labelText: 'Username'),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () {
-                setState(() {
-                  _usernames[index] = _usernameController.text;
-                });
-                _usernameController.clear();
-                _saveUsernames();
-                Navigator.of(context).pop();
-              },
-              child: const Text('Save'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _deleteUsername(int index) {
-    setState(() {
-      _usernames.removeAt(index);
-    });
-    _saveUsernames();
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final usernameNotifier = context.watch<UsernameNotifier>();
+    final usernameController = TextEditingController();
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Manage Usernames')),
+      appBar: AppBar(
+        title: const Text('Manage Usernames'),
+        backgroundColor: Colors.indigo,
+      ),
       body: Column(
         children: [
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: TextField(
-              controller: _usernameController,
+              controller: usernameController,
               decoration: const InputDecoration(
                 labelText: 'Add a Username',
                 border: OutlineInputBorder(),
@@ -100,25 +29,62 @@ class _UsernamePageState extends State<UsernamePage> {
             ),
           ),
           ElevatedButton(
-            onPressed: _addUsername,
+            onPressed: () {
+              final username = usernameController.text;
+              if (username.isNotEmpty) {
+                usernameNotifier.addUsername(username);
+                usernameController.clear();
+              }
+            },
             child: const Text('Add Username'),
           ),
           Expanded(
             child: ListView.builder(
-              itemCount: _usernames.length,
-              itemBuilder: (BuildContext context, int index) {
+              itemCount: usernameNotifier.usernames.length,
+              itemBuilder: (context, index) {
                 return ListTile(
-                  title: Text(_usernames[index]),
+                  title: Text(usernameNotifier.usernames[index]),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       IconButton(
                         icon: const Icon(Icons.edit),
-                        onPressed: () => _editUsername(index),
+                        onPressed: () {
+                          usernameController.text =
+                              usernameNotifier.usernames[index];
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                title: const Text('Edit Username'),
+                                content: TextField(
+                                  controller: usernameController,
+                                  decoration: const InputDecoration(
+                                      labelText: 'Username'),
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () =>
+                                        Navigator.of(context).pop(),
+                                    child: const Text('Cancel'),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      usernameNotifier.editUsername(
+                                          index, usernameController.text);
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: const Text('Save'),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        },
                       ),
                       IconButton(
                         icon: const Icon(Icons.delete),
-                        onPressed: () => _deleteUsername(index),
+                        onPressed: () => usernameNotifier.deleteUsername(index),
                       ),
                     ],
                   ),
